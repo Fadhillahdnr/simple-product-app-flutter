@@ -22,4 +22,12 @@ final List<Product> products = [
     description: 'Foundation ringan dan menutupi sempurna.',
     imagePath: 'assets/images/product3.png',
   ),
+
+  Product(
+    id: 4,
+    name: 'Parfum Kahf Biru',
+    price: 250000.00,
+    description: 'Parfum kahf biru tahan lama.',
+    imagePath: 'assets/images/product4.png',
+  ),
 ];
