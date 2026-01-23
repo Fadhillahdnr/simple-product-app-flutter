@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/product_service.dart';
 import '../models/product_model.dart';
-import 'add_product_page.dart';
 import 'product_detail_page.dart';
 import 'cart_page.dart';
-import 'login_page.dart';
-import '../services/auth_service.dart';
 
 
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class UserHomePage extends StatelessWidget {
+  UserHomePage({super.key});
 
   final ProductService productService = ProductService();
-  final AuthService authService = AuthService();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -34,28 +31,13 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await authService.logout();
-
-              if (context.mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => LoginPage()),
-                  (route) => false,
-                );
-              }
+              await FirebaseAuth.instance.signOut();
+              // ✅ AuthWrapper otomatis balik ke LoginPage
             },
           ),
         ],
       ),
 
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddProductPage()),
-          );
-        },
-      ),
       body: StreamBuilder<List<Product>>(
         stream: productService.getProducts(),
         builder: (context, snapshot) {
