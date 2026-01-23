@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'add_product_page.dart';
+import 'manage_product_page.dart';
+import 'order_page.dart';
+import 'report_page.dart';
 
 class AdminHomePage extends StatelessWidget {
   AdminHomePage({super.key});
 
-  final AuthService authService = AuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +47,31 @@ class AdminHomePage extends StatelessWidget {
               icon: Icons.inventory,
               title: 'Kelola Produk',
               onTap: () {
-                // nanti bisa ke halaman manage product
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ManageProductPage()),
+                );
               },
             ),
             _DashboardCard(
               icon: Icons.receipt_long,
               title: 'Pesanan',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => OrderPage()),
+                );
+              },
             ),
             _DashboardCard(
               icon: Icons.analytics,
               title: 'Laporan',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ReportPage()),
+                );
+              },
             ),
           ],
         ),

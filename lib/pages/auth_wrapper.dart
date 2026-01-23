@@ -12,15 +12,19 @@ class AuthWrapper extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  /// 🔐 Ambil role dari Firestore
   Future<String> _getUserRole(String uid) async {
     final doc = await _firestore.collection('users').doc(uid).get();
 
     if (!doc.exists) {
-      // 🔥 PENTING: default role
-      return 'user';
+      debugPrint('USER DOC TIDAK DITEMUKAN');
+      return 'user'; // default aman
     }
 
-    return doc.data()?['role'] ?? 'user';
+    final role = doc.data()?['role'];
+    debugPrint('LOGIN ROLE: $role');
+
+    return role ?? 'user';
   }
 
   @override
@@ -28,21 +32,26 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: _auth.authStateChanges(),
       builder: (context, authSnapshot) {
+
+        // ⏳ Menunggu status auth
         if (authSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
+        // ❌ Belum login
         if (!authSnapshot.hasData) {
           return const LoginPage();
         }
 
         final user = authSnapshot.data!;
 
+        // 🔍 Ambil role user
         return FutureBuilder<String>(
           future: _getUserRole(user.uid),
           builder: (context, roleSnapshot) {
+
             if (roleSnapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
@@ -51,6 +60,7 @@ class AuthWrapper extends StatelessWidget {
 
             final role = roleSnapshot.data ?? 'user';
 
+            // ✅ Routing berdasarkan role
             if (role == 'admin') {
               return AdminHomePage();
             } else {

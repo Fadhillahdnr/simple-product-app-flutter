@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../services/cart_service.dart';
 import '../models/product_model.dart';
-import 'checkout_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/order_service.dart';
 
 class CartPage extends StatelessWidget {
   CartPage({super.key});
 
   final CartService cartService = CartService();
+  final OrderService orderService = OrderService();
 
   @override
   Widget build(BuildContext context) {
@@ -69,13 +71,44 @@ class CartPage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           child: const Text('Checkout'),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CheckoutPage(),
-                              ),
-                            );
+                          onPressed: () async {
+                            final user =
+                                FirebaseAuth.instance.currentUser;
+
+                            if (user == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Silakan login kembali'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            try {
+                              await orderService.createOrder(
+                                userId: user.uid,
+                                totalPrice: cartService.totalPrice,
+                              );
+
+                              cartService.clearCart();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Pesanan berhasil dibuat'),
+                                ),
+                              );
+
+                              Navigator.pop(context);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Gagal checkout: $e'),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ),

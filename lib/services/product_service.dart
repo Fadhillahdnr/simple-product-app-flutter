@@ -18,4 +18,19 @@ class ProductService {
   Future<void> addProduct(Product product) async {
     await _db.collection(_collection).add(product.toFirestore());
   }
+
+  Future<void> updateProduct(Product product) async {
+    await _db
+        .collection(_collection)
+        .doc(product.id)
+        .update(product.toFirestore());
+  }
+
+  Future<void> deleteProduct(String id) async {
+  await FirebaseFirestore.instance
+      .collection('products')
+      .doc(id)
+      .delete();
+  }
 }
+
