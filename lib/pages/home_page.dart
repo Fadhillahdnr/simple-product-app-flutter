@@ -5,12 +5,16 @@ import '../models/product_model.dart';
 import 'add_product_page.dart';
 import 'product_detail_page.dart';
 import 'cart_page.dart';
+import 'login_page.dart';
+import '../services/auth_service.dart';
+
 
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
 
   final ProductService productService = ProductService();
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +34,14 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/login');
+              await authService.logout();
+
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => LoginPage()),
+                  (route) => false,
+                );
+              }
             },
           ),
         ],
