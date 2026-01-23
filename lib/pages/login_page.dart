@@ -1,43 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          _isLoading = false;
-        });
+    setState(() => _isLoading = true);
 
-        if (_usernameController.text == 'admin' &&
-            _passwordController.text == '1234') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => HomePage()),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Username atau password salah')),
-          );
-        }
-      });
+    try {
+      final credential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (credential.user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomePage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = 'Login gagal';
+
+      if (e.code == 'user-not-found') {
+        message = 'User tidak ditemukan';
+      } else if (e.code == 'wrong-password') {
+        message = 'Password salah';
+      } else if (e.code == 'invalid-email') {
+        message = 'Format email tidak valid';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -46,50 +64,67 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Login', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                SizedBox(height: 32),
+                const Text(
+                  'Login',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 32),
+
+                // EMAIL
                 TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Masukkan username';
+                      return 'Email wajib diisi';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Email tidak valid';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 16),
+
+                const SizedBox(height: 16),
+
+                // PASSWORD
                 TextFormField(
                   controller: _passwordController,
-                  decoration: InputDecoration(
+                  obscureText: true,
+                  decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
-                  obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Masukkan password';
+                      return 'Password wajib diisi';
+                    }
+                    if (value.length < 6) {
+                      return 'Password minimal 6 karakter';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 24),
+
+                const SizedBox(height: 24),
+
                 _isLoading
-                    ? CircularProgressIndicator()
+                    ? const CircularProgressIndicator()
                     : SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _login,
-                          child: Text('Login'),
+                          child: const Text('Login'),
                         ),
                       ),
               ],

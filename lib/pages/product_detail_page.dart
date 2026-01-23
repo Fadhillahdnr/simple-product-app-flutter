@@ -1,54 +1,84 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
-import '../utils/currency_formatter.dart';
+import '../models/product_model.dart';
+import '../services/cart_service.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;
-  final Function(Product)? onAddToCart;
+  final CartService cartService = CartService();
 
-  const ProductDetailPage({Key? key, required this.product, this.onAddToCart}) : super(key: key);
+  ProductDetailPage({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(product.name),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(
-              product.imagePath,
-              height: 200,
-              fit: BoxFit.cover,
+
+            // IMAGE UTUH
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Image.asset(
+                  product.imageUrl,
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
-            SizedBox(height: 16),
-            Text(product.name, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
+
+            // NAMA & HARGA
             Text(
-              CurrencyFormatter.formatRupiah(product.price),
+              product.name,
+              textAlign: TextAlign.center,
               style: const TextStyle(
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
               ),
             ),
-            SizedBox(height: 16),
-            Text(product.description),
-            SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (onAddToCart != null) {
-                    onAddToCart!(product);
-                  }
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.add_shopping_cart),
-                label: Text('Add to Cart'),
+            const SizedBox(height: 8),
+            Text(
+              'Rp ${product.price}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // BUTTON KERANJANG
+            ElevatedButton.icon(
+              icon: const Icon(Icons.shopping_cart),
+              label: const Text('Tambahkan ke Keranjang'),
+              onPressed: () {
+                cartService.addToCart(product);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Produk ditambahkan ke keranjang'),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // DESKRIPSI
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                product.description,
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),

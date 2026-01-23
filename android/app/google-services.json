@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "369062827583",
+    "project_id": "simpleproductapp-937a3",
+    "storage_bucket": "simpleproductapp-937a3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369062827583:android:e25b7153167640ffba0a8a",
+        "android_client_info": {
+          "package_name": "com.example.simple_product_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369062827583-857o3lvdehalqn0ri9n26cvlbl6ro7fm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClEVbNbb7t7qA9oInaodHLB3BQABQSI04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369062827583-857o3lvdehalqn0ri9n26cvlbl6ro7fm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "369062827583-2bj29cov38jdrciagbpestf9l5q2emuh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.simpleProductApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

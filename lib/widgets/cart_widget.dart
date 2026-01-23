@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
+import '../models/product_model.dart';
 import 'package:intl/intl.dart';
 import '../utils/currency_formatter.dart';
 
 class CartWidget extends StatelessWidget {
   final List<Product> cartItems;
 
-  const CartWidget({Key? key, required this.cartItems}) : super(key: key);
+  const CartWidget({super.key, required this.cartItems});
 
   @override
   Widget build(BuildContext context) {
