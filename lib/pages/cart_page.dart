@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import '../services/cart_service.dart';
 import '../models/product_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../services/order_service.dart';
+import 'checkout_page.dart';
 
-class CartPage extends StatelessWidget {
-  CartPage({super.key});
 
+
+class CartPage extends StatefulWidget {
+  const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
   final CartService cartService = CartService();
-  final OrderService orderService = OrderService();
 
   @override
   Widget build(BuildContext context) {
-    final List<Product> items = cartService.cartItems;
+    final items = cartService.cartItems;
 
     return Scaffold(
       appBar: AppBar(
@@ -26,35 +31,60 @@ class CartPage extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     itemCount: items.length,
-                    itemBuilder: (context, index) {
+                    itemBuilder: (_, index) {
                       final product = items[index];
 
-                      return ListTile(
-                        leading: Image.network(
-                          product.imageUrl,
-                          width: 50,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.image),
-                        ),
-                        title: Text(product.name),
-                        subtitle: Text('Rp ${product.price}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            cartService.removeFromCart(product);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (_) => CartPage()),
-                            );
-                          },
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        child: ListTile(
+                          leading: Image.network(
+                            product.imageUrl,
+                            width: 50,
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.image),
+                          ),
+                          title: Text(product.name),
+                          subtitle: Text(
+                            'Rp ${product.price} x ${product.quantity}',
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () {
+                                  setState(() {
+                                    cartService.decreaseQty(product);
+                                  });
+                                },
+                              ),
+                              Text('${product.quantity}'),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  setState(() {
+                                    cartService.increaseQty(product);
+                                  });
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  setState(() {
+                                    cartService.removeItem(product);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
                 ),
 
-                // ================= TOTAL + CHECKOUT =================
+                // TOTAL & CHECKOUT
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -71,44 +101,16 @@ class CartPage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           child: const Text('Checkout'),
-                          onPressed: () async {
-                            final user =
-                                FirebaseAuth.instance.currentUser;
-
-                            if (user == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Silakan login kembali'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CheckoutPage(
+                                  cartItems: items,
+                                  totalPrice: cartService.totalPrice,
                                 ),
-                              );
-                              return;
-                            }
-
-                            try {
-                              await orderService.createOrder(
-                                userId: user.uid,
-                                totalPrice: cartService.totalPrice,
-                              );
-
-                              cartService.clearCart();
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Pesanan berhasil dibuat'),
-                                ),
-                              );
-
-                              Navigator.pop(context);
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text('Gagal checkout: $e'),
-                                ),
-                              );
-                            }
+                              ),
+                            );
                           },
                         ),
                       ),

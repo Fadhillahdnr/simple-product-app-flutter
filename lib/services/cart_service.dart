@@ -1,35 +1,56 @@
+import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 
-class CartService {
-  // ================= SINGLETON =================
+class CartService extends ChangeNotifier {
   static final CartService _instance = CartService._internal();
   factory CartService() => _instance;
   CartService._internal();
 
-  // ================= DATA KERANJANG =================
   final List<Product> _cartItems = [];
 
-  // ================= GETTER =================
   List<Product> get cartItems => _cartItems;
 
   int get totalPrice {
     int total = 0;
-    for (var product in _cartItems) {
-      total += product.price;
+    for (var item in _cartItems) {
+      total += item.price * item.quantity;
     }
     return total;
   }
 
-  // ================= METHOD =================
-  void addToCart(Product product) {
-    _cartItems.add(product);
+  void addItem(Product product) {
+    final index = _cartItems.indexWhere((p) => p.id == product.id);
+
+    if (index >= 0) {
+      _cartItems[index].quantity++;
+    } else {
+      _cartItems.add(product);
+    }
+
+    notifyListeners();
   }
 
-  void removeFromCart(Product product) {
+  void increaseQty(Product product) {
+    product.quantity++;
+    notifyListeners();
+  }
+
+  void decreaseQty(Product product) {
+    if (product.quantity > 1) {
+      product.quantity--;
+    } else {
+      _cartItems.remove(product);
+    }
+    notifyListeners();
+  }
+
+  void removeItem(Product product) {
     _cartItems.remove(product);
+    notifyListeners();
   }
 
   void clearCart() {
     _cartItems.clear();
+    notifyListeners();
   }
 }

@@ -57,7 +57,7 @@ class ProductDetailPage extends StatelessWidget {
               icon: const Icon(Icons.shopping_cart),
               label: const Text('Tambahkan ke Keranjang'),
               onPressed: () {
-                cartService.addToCart(product);
+                cartService.addItem(product);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

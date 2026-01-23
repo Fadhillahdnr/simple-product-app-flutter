@@ -4,6 +4,8 @@ import 'add_product_page.dart';
 import 'manage_product_page.dart';
 import 'order_page.dart';
 import 'report_page.dart';
+import '../services/product_service.dart';
+import 'admin_orders_page.dart';
 
 class AdminHomePage extends StatelessWidget {
   AdminHomePage({super.key});
@@ -59,7 +61,7 @@ class AdminHomePage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => OrderPage()),
+                  MaterialPageRoute(builder: (_) => AdminOrdersPage()),
                 );
               },
             ),

@@ -5,6 +5,8 @@ import '../models/product_model.dart';
 class ManageProductPage extends StatelessWidget {
   final ProductService productService = ProductService();
 
+  ManageProductPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

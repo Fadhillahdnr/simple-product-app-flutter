@@ -6,6 +6,7 @@ class Product {
   final int price;
   final String description;
   final String imageUrl;
+  int quantity;
 
   Product({
     required this.id,
@@ -13,6 +14,7 @@ class Product {
     required this.price,
     required this.description,
     required this.imageUrl,
+    this.quantity = 1,
   });
 
   // ================= FROM FIRESTORE =================
