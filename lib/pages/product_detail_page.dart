@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/product_model.dart';
-import '../services/cart_service.dart';
+import '../providers/cart_provider.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;
-  final CartService cartService = CartService();
 
-  ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({
+    super.key,
+    required this.product,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,33 +18,45 @@ class ProductDetailPage extends StatelessWidget {
         title: Text(product.name),
         centerTitle: true,
       ),
+
+      // ================= BODY =================
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
-            // IMAGE UTUH
+            // ================= IMAGE =================
             Padding(
               padding: const EdgeInsets.all(16),
               child: AspectRatio(
                 aspectRatio: 1,
-                child: Image.asset(
-                  product.imageUrl,
-                  fit: BoxFit.contain,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    product.imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.image, size: 80),
+                  ),
                 ),
               ),
             ),
 
-            // NAMA & HARGA
-            Text(
-              product.name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+            // ================= NAME =================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                product.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
+
             const SizedBox(height: 8),
+
+            // ================= PRICE =================
             Text(
               'Rp ${product.price}',
               style: const TextStyle(
@@ -50,36 +65,46 @@ class ProductDetailPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            // BUTTON KERANJANG
-            ElevatedButton.icon(
-              icon: const Icon(Icons.shopping_cart),
-              label: const Text('Tambahkan ke Keranjang'),
-              onPressed: () {
-                cartService.addItem(product);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Produk ditambahkan ke keranjang'),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            // DESKRIPSI
+            // ================= DESCRIPTION =================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 product.description,
                 textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 15),
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 80),
           ],
+        ),
+      ),
+
+      // ================= BOTTOM BUTTON =================
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.shopping_cart),
+            label: const Text(
+              'Tambah ke Keranjang',
+              style: TextStyle(fontSize: 16),
+            ),
+            onPressed: () {
+              context.read<CartProvider>().addToCart(product);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Produk ditambahkan ke keranjang'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

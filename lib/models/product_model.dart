@@ -3,9 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Product {
   final String id;
   final String name;
-  final int price;
+  final double price;
   final String description;
   final String imageUrl;
+  
   int quantity;
 
   Product({
@@ -24,9 +25,7 @@ class Product {
     return Product(
       id: doc.id,
       name: data?['name'] ?? '',
-      price: (data?['price'] ?? 0) is int
-          ? data!['price']
-          : (data?['price'] as num).toInt(),
+      price: (data?['price'] as num?)?.toDouble() ?? 0.0,
       description: data?['description'] ?? '',
       imageUrl: data?['imageUrl'] ?? '',
     );

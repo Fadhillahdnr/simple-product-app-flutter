@@ -1,38 +1,35 @@
 import 'package:flutter/material.dart';
-import '../services/cart_service.dart';
-import '../models/product_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
 import 'checkout_page.dart';
 
-
-
-class CartPage extends StatefulWidget {
+class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  final CartService cartService = CartService();
-
-  @override
   Widget build(BuildContext context) {
-    final items = cartService.cartItems;
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Keranjang'),
         centerTitle: true,
       ),
-      body: items.isEmpty
-          ? const Center(child: Text('Keranjang masih kosong'))
+      body: cart.items.isEmpty
+          ? const Center(
+              child: Text(
+                'Keranjang masih kosong',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
           : Column(
               children: [
+                // ================= LIST CART =================
                 Expanded(
                   child: ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (_, index) {
-                      final product = items[index];
+                    itemCount: cart.items.length,
+                    itemBuilder: (context, index) {
+                      final product = cart.items[index];
 
                       return Card(
                         margin: const EdgeInsets.symmetric(
@@ -47,34 +44,27 @@ class _CartPageState extends State<CartPage> {
                           title: Text(product.name),
                           subtitle: Text(
                             'Rp ${product.price} x ${product.quantity}',
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.remove),
-                                onPressed: () {
-                                  setState(() {
-                                    cartService.decreaseQty(product);
-                                  });
-                                },
+                                onPressed: () =>
+                                    cart.decreaseQty(product),
                               ),
                               Text('${product.quantity}'),
                               IconButton(
                                 icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  setState(() {
-                                    cartService.increaseQty(product);
-                                  });
-                                },
+                                onPressed: () =>
+                                    cart.increaseQty(product),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  setState(() {
-                                    cartService.removeItem(product);
-                                  });
-                                },
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.red),
+                                onPressed: () =>
+                                    cart.removeFromCart(product),
                               ),
                             ],
                           ),
@@ -84,17 +74,37 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
 
-                // TOTAL & CHECKOUT
-                Padding(
+                // ================= TOTAL & CHECKOUT =================
+                Container(
                   padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     children: [
-                      Text(
-                        'Total: Rp ${cartService.totalPrice}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            'Rp ${cart.totalPrice}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
@@ -106,8 +116,8 @@ class _CartPageState extends State<CartPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => CheckoutPage(
-                                  cartItems: items,
-                                  totalPrice: cartService.totalPrice,
+                                  cartItems: cart.items,
+                                  totalPrice: cart.totalPrice,
                                 ),
                               ),
                             );

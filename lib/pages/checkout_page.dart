@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/order_service.dart';
 import '../models/product_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
+
 
 class CheckoutPage extends StatefulWidget {
   final List<Product> cartItems;
-  final int totalPrice;
+  final double totalPrice;
 
   const CheckoutPage({
     super.key,
@@ -27,7 +30,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _paymentMethod = 'COD';
 
   final OrderService orderService = OrderService();
-  final user = FirebaseAuth.instance.currentUser!;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +49,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
           key: _formKey,
           child: ListView(
             children: [
-              // ================= DATA PEMESAN =================
               const Text(
                 'Data Pengiriman',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -55,7 +64,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
               const SizedBox(height: 24),
 
-              // ================= PRODUK =================
               const Text(
                 'Produk',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -65,18 +73,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ...widget.cartItems.map(
                 (product) => ListTile(
                   title: Text(product.name),
-                  subtitle: Text('Rp ${product.price}'),
+                  subtitle: Text(
+                    'Qty: ${product.quantity} • Rp ${product.price * product.quantity}',
+                  ),
                 ),
               ),
 
               const Divider(),
 
-              // ================= PEMBAYARAN =================
               const Text(
                 'Metode Pembayaran',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
 
               DropdownButtonFormField<String>(
                 value: _paymentMethod,
@@ -94,7 +102,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
               const SizedBox(height: 24),
 
-              // ================= TOTAL =================
               Text(
                 'Total: Rp ${widget.totalPrice}',
                 style:
@@ -134,6 +141,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _submitOrder() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     await orderService.createOrder(
       userId: user.uid,
       name: _nameController.text,
@@ -144,11 +154,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
       totalPrice: widget.totalPrice,
     );
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pesanan berhasil dibuat')),
-      );
-      Navigator.pop(context);
-    }
+    // 🧹 CLEAR CART
+    context.read<CartProvider>().clearCart();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Pesanan berhasil dibuat')),
+    );
+
+    // 🚀 BALIK KE HOME
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/home',
+      (route) => false,
+    );
   }
 }

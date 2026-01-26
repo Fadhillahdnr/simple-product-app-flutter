@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'add_product_page.dart';
 import 'manage_product_page.dart';
-import 'order_page.dart';
 import 'report_page.dart';
-import '../services/product_service.dart';
 import 'admin_orders_page.dart';
 
 class AdminHomePage extends StatelessWidget {
@@ -21,7 +19,7 @@ class AdminHomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+                await _auth.signOut();
                 // ✅ AuthWrapper otomatis balik ke LoginPage
               },
           ),

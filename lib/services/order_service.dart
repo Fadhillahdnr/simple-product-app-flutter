@@ -12,7 +12,7 @@ class OrderService {
     required String address,
     required String paymentMethod,
     required List<Product> items,
-    required int totalPrice,
+    required double totalPrice,
   }) async {
     await _db.collection('orders').add({
       'userId': userId,
@@ -26,6 +26,7 @@ class OrderService {
                 'name': p.name,
                 'price': p.price,
                 'qty': p.quantity,
+                'imageUrl': p.imageUrl,
               })
           .toList(),
       'totalPrice': totalPrice,

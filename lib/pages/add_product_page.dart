@@ -114,7 +114,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     final product = Product(
                       id: '',
                       name: nameCtrl.text.trim(),
-                      price: int.parse(priceCtrl.text),
+                      price: double.parse(priceCtrl.text),
                       description: descriptionCtrl.text.trim(),
                       imageUrl: 'assets/images/${imageCtrl.text.trim()}',
                     );

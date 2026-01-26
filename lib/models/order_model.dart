@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class OrderModel {
   final String id;
   final String userId;
-  final int totalPrice;
+  final double totalPrice;
   final String status;
   final Timestamp createdAt;
 
